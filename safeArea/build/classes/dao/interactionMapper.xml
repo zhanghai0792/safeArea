@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.interactionMapper">
+	<resultMap id="BaseResultMap4" type="pojo.interaction">
+		<id column="interaction_id" jdbcType="INTEGER" property="id" />
+		<result column="interaction_title" jdbcType="VARCHAR" property="title" />
+		<result column="interaction_releaseTime" jdbcType="TIMESTAMP"
+			property="releaseTime" />
+		<result column="interaction_agreeNum" jdbcType="INTEGER"
+			property="agreeNum" />
+		<result column="interaction_isDelete" jdbcType="BIT" property="isDelete" />
+		<result column="interaction_releaseID" jdbcType="INTEGER"
+			property="releaseID" />
+		<result column="interaction_content" jdbcType="LONGVARCHAR"
+			property="content" />
+	</resultMap>
+	
+	<!--  <resultMap id="BasePhotoResultMap1" type="pojo.interaction">
+		<id column="interaction_id" jdbcType="INTEGER" property="id" />
+		<result column="interaction_title" jdbcType="VARCHAR" property="title" />
+		<result column="interaction_releaseTime" jdbcType="TIMESTAMP"
+			property="releaseTime" />
+		<result column="interaction_agreeNum" jdbcType="INTEGER"
+			property="agreeNum" />
+		<result column="interaction_isDelete" jdbcType="BIT" property="isDelete" />
+		<result column="interaction_releaseID" jdbcType="INTEGER"
+			property="releaseID" />
+		<result column="interaction_content" jdbcType="LONGVARCHAR"
+			property="content" />
+		<collection property="photos" javaType="list" ofType="pojo.photo"
+			resultMap="dao.photoMapper.FKBaseResultMap" />
+	</resultMap>
+	
+	<resultMap  id="DetailResultMap2" type="pojo.interaction">
+	<id column="interaction.id" jdbcType="INTEGER" property="id" />
+		<id column="interaction_id" jdbcType="INTEGER" property="id" />
+		<result column="interaction_title" jdbcType="VARCHAR" property="title" />
+		<result column="interaction_releaseTime" jdbcType="TIMESTAMP"
+			property="releaseTime" />
+		<result column="interaction_agreeNum" jdbcType="INTEGER"
+			property="agreeNum" />
+		<result column="interaction_isDelete" jdbcType="BIT" property="isDelete" />
+		<result column="interaction_releaseID" jdbcType="INTEGER"
+			property="releaseID" />
+		<result column="interaction_content" jdbcType="LONGVARCHAR"
+			property="content" />
+		<collection property="photos" javaType="list" ofType="pojo.photo"
+			resultMap="dao.photoMapper.FKBaseResultMap" />
+		<collection property="replies" javaType="list" ofType="pojo.reply"
+			resultMap="dao.replyMapper.BaseResultMap"/>
+	</resultMap>  -->
+
+	<sql id="Detail_Column_List">
+		SELECT
+		interaction.id AS interaction_id,
+		interaction.title AS interaction_title,
+		interaction.content AS interaction.content,
+		interaction.releaseTime AS interaction.releaseTime,
+		interaction.agreeNum AS interaction_agreeNum,
+		interaction.isDelete as interaction_isDelete,
+		interaction.releaseID as interaction_releaseID,
+		reply.ID as reply_ID,
+		reply.content as reply_content,
+		reply.replyerID as reply_replyerID,
+		reply.replyTime as reply_replyTime,
+		reply.type as reply_type,
+		reply.isDelete reply_isDelete,
+		reply.interactionID reply_interactionID,
+		photo.ID photo_ID,
+		photo.fk_id photo_fk_id,
+		photo.path photo_path,
+		photo.type photo_type,
+		user.name as releaseName
+		FROM
+		interaction AS interaction
+		left join reply AS reply on interaction_ID=reply_interactionID left JOIN
+		photo AS photo on interaction_ID=photo_fk_id AND photo_type=4 left
+		join user user on user_id=interaction_releaseID
+	</sql>
+
+
+	<sql id="Base_Column_List">
+		SELECT
+		interaction.ID interaction_ID,
+		interaction.title interaction_title,
+		interaction.content interaction_content,
+		interaction.releaseTime interaction_releaseTime,
+		interaction.agreeNum interaction_agreeNum,
+		interaction.isDelete interaction_isDelete,
+		interaction.releaseID interaction_releaseID
+		FROM
+		interaction interaction
+	</sql>
+	<sql id="Base_poto_Column_List">
+		SELECT
+		interaction.ID interaction_ID,
+		interaction.title interaction_title,
+		interaction.content interaction_content,
+		interaction.releaseTime interaction_releaseTime,
+		interaction.agreeNum interaction_agreeNum,
+		interaction.isDelete interaction_isDelete,
+		interaction.releaseID interaction_releaseID,
+		photo.ID photo_ID,
+		photo.fk_id photo_fk_id,
+		photo.path photo_path,
+		photo.type photo_type,
+		user.name as releaseName
+		FROM
+		interaction interaction left JOIN
+		photo AS photo on interaction.ID=photo.fk_id AND photo.type=4 left
+		join user user on user.id=interaction.releaseID
+	</sql>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap4">
+          <include refid="Detail_Column_List" /> 
+	     where interaction.id = #{id,jdbcType=INTEGER} and interaction.isDelete != true
+	</select>
+	<update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		update interaction set isDelete=true 
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<insert id="insert" parameterType="pojo.interaction" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into interaction (ID, title, releaseTime,
+		agreeNum, isDelete, content,releaseID
+		)
+		values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR},
+		#{releaseTime,jdbcType=TIMESTAMP},
+		#{agreeNum,jdbcType=INTEGER}, #{isDelete,jdbcType=BIT}, #{content,jdbcType=LONGVARCHAR},#{releaseID,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="pojo.interaction"  keyColumn="id"
+		useGeneratedKeys="true">
+		insert into interaction
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="title != null">
+				title,
+			</if>
+			<if test="releaseTime != null">
+				releaseTime,
+			</if>
+			<if test="agreeNum != null">
+				agreeNum,
+			</if>
+			<if test="isDelete != null">
+				isDelete,
+			</if>
+			<if test="content != null">
+				content,
+			</if>
+			<if test="releaseID != null">releaseID</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="title != null">
+				#{title,jdbcType=VARCHAR},
+			</if>
+			<if test="releaseTime != null">
+				#{releaseTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="agreeNum != null">
+				#{agreeNum,jdbcType=INTEGER},
+			</if>
+			<if test="isdelete != null">
+				#{isdelete,jdbcType=BIT},
+			</if>
+			<if test="content != null">
+				#{content,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="releaseID != null">
+			#{releaseID,jdbcType=VARCHAR}
+			</if>
+		</trim>
+	</insert>
+	
+	<update id="updateAgreeNum" parameterType="dao.query.interactionQueryParamspojo.interaction">
+		update interaction set agreeNum = agreeNum + (#{changeAreeNum}) where id=#{changeAgreeNumInteractionId}
+	</update>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="pojo.interaction">
+		update interaction
+		<set>
+			<if test="title != null">
+				title = #{title,jdbcType=VARCHAR},
+			</if>
+			<if test="releasetime != null">
+				releaseTime = #{releaseTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="agreenum != null">
+				agreeNum = #{agreeNum,jdbcType=INTEGER},
+			</if>
+			<if test="isdelete != null">
+				isDelete = #{isDelete,jdbcType=BIT},
+			</if>
+			<if test="content != null">
+				content = #{content,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="releaseID != null">
+			releaseID=#{releaseID,jdbcType=VARCHAR}
+			</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateByPrimaryKey" parameterType="pojo.interaction">
+		update interaction
+		set title = #{title,jdbcType=VARCHAR},
+		releaseTime = #{releaseTime,jdbcType=TIMESTAMP},
+		agreeNum = #{agreeNum,jdbcType=INTEGER},
+		isDelete = #{isDelete,jdbcType=BIT},
+		content = #{content,jdbcType=LONGVARCHAR},
+		releaseID=#{releaseID,jdbcType=VARCHAR}
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+
+	<select id="getBasic" parameterType="dao.query.interactionQueryParams" resultMap="BaseResultMap4">
+		<include refid="Base_Column_List" />
+		<where>			
+			<if test="pojos != null">
+			and interaction.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and interaction.isDelete != true
+		</where>
+		<if test="orderBy != null"> order by ${orderBy}</if>
+		<if test="orderBy != null"> order by releaseTime desc</if>
+		<if test="recordIndex !=null"> limit #{recordIndex},#{pageSize} </if>
+	</select>
+
+	<!-- <select id="getDetail" parameterType="dao.query.interactionQueryParams" resultMap="BasePhotoResultMap">
+		<include refid="Base_poto_Column_List" />
+		<where>
+			<if test="pojos != null">
+			and interaction.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and interaction.isDelete != true
+		</where>
+		<if test="orderBy != null"> order by ${orderBy}</if>
+		<if test="orderBy != null"> order by interaction.releaseTime desc</if>
+	</select>
+	 -->
+	<select id="count" parameterType="dao.query.interactionQueryParams"  resultType="long">
+		select count(id) from interaction
+		<where>
+			<if test="cond ！= null"> ${cond} </if>
+			and isDelete != true
+		</where>
+	</select>
+
+</mapper>

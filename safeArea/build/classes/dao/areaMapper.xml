@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.areaMapper">
+	<resultMap id="" type="pojo.area">
+		<id column="area.ID" jdbcType="INTEGER" property="id" />
+		<result column="area.name" jdbcType="VARCHAR" property="name" />
+		<result column="area.policeStation" jdbcType="VARCHAR"
+			property="policeStation" />
+		<result column="area.isDelete" jdbcType="BIT" property="isDelete" />
+		
+	</resultMap>
+	<resultMap extends="BaseResultMap" id="DetailResultMap" type="pojo.area">
+	<result column="area.introduction" jdbcType="LONGVARCHAR"
+			property="introduction" />
+		<collection property="photos" javaType="list" ofType="pojo.photo"
+			resultMap="dao.photoMapper.FK" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		SELECT
+		area.ID,
+		area.name,
+		<!-- area.introduction, -->
+		area.policeStation,
+		area.isDelete
+		FROM
+		area area
+
+	</sql>
+	<sql id="Detail_Column_List">
+		SELECT
+		area.ID,
+		area.name,
+		area.introduction,
+		area.policeStation,
+		area.isDelete,
+		photo.ID,
+		photo.path,
+		photo.type
+		FROM
+		area area left join photo photo on area.id=photo.fk_id and
+		photo.type=1
+	</sql>
+
+	<select id="getImgPaths" parameterType="list" resultType="string">
+		select photo.path from area,photo where area.id=photo.fk_id and
+		photo.type=1 and area.id in
+		<foreach collection="list" open="(" close=")" separator=","
+			item="area">
+			#{area.id}
+		</foreach>
+	</select>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="DetailResultMap">
+		<include refid="Detail_Column_List" />
+		where area.id = #{id,jdbcType=INTEGER} and area.isDelete != true
+	</select>
+	<update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		update area set isDelete=true
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+
+	<update id="deletesById" parameterType="dao.query.areaQueryParams">
+		update area set isDelete=true 
+		where ID in
+		<foreach collection="pojos" open="(" close=")" separator=","
+			item="area">
+			#{area.id}
+		</foreach>
+	</update>
+
+	<insert id="insert" parameterType="pojo.area" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into area (name, policeStation,
+		isDelete,
+		introduction)
+		values ( #{name,jdbcType=VARCHAR},
+		#{policeStation,jdbcType=VARCHAR},
+		#{isDelete,jdbcType=BIT},
+		#{introduction,jdbcType=LONGVARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="pojo.area"
+		keyColumn="id" useGeneratedKeys="true">
+		insert into area
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+
+			<if test="name != null">
+				name,
+			</if>
+			<if test="policeStation != null">
+				policeStation,
+			</if>
+			<if test="isDelete != null">
+				isDelete,
+			</if>
+			<if test="introduction != null">
+				introduction,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="policeStation != null">
+				#{policeStation,jdbcType=VARCHAR},
+			</if>
+			<if test="isDelete != null">
+				#{isDelete,jdbcType=BIT},
+			</if>
+			<if test="introduction != null">
+				#{introduction,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="pojo.area">
+		update area
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="policeStation != null">
+				policeStation = #{policeStation,jdbcType=VARCHAR},
+			</if>
+			<if test="isDelete != null">
+				isDelete = #{isDelete,jdbcType=BIT},
+			</if>
+			<if test="introduction != null">
+				introduction = #{introduction,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+
+	<update id="updateByPrimaryKey" parameterType="pojo.area">
+		update
+		area
+		set name
+		= #{name,jdbcType=VARCHAR},
+		policeStation =
+		#{policeStation,jdbcType=VARCHAR},
+		isDelete = #{isDelete,jdbcType=BIT},
+		introduction = #{introduction,jdbcType=LONGVARCHAR}
+		where ID =
+		#{id,jdbcType=INTEGER}
+	</update>
+
+	<select id="getBasic" parameterType="dao.query.areaQueryParams" resultMap="">
+		<include refid="Base_Column_List" />
+		<where>
+			<if test="id ！= null">area.id=#{id}</if>
+			<if test="placeStation != null">placeStation like '%${placeStation}%'</if>
+			<if test="pojos != null">
+				and area.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="area">
+					#{area.id}
+				</foreach>
+			</if>
+			and area.isDelete != true
+			</where>
+			
+			 <if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by area.id </if>
+		<if test="recordIndex !=null"> limit #{recordIndex},#{pageSize}</if> 
+	</select>
+
+	<select id="getDetail" parameterType="dao.query.areaQueryParams" resultMap="DetailResultMap">
+		<include refid="Detail_Column_List" />
+		<where>
+			<if test="id ！= null">area.id=#{id}</if>
+			<if test="placeStation != null">placeStation like '%${placeStation}%'</if>
+			<if test="pojos != null">
+				and area.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="area">
+					#{area.id}
+				</foreach>
+			</if>
+			and area.isDelete != true
+			</where>
+			 <if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by area.id </if>
+	</select>
+	
+	
+	<select id="count" parameterType="dao.query.areaQueryParams" resultType="long">
+		select count(area.id) from area area
+		<where>
+			<if test="placeStation != null"> placeStation like '%${placeStation}%' </if>
+			 and isDelete != true
+		</where>
+	</select>
+</mapper>

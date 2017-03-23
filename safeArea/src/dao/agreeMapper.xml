@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.agreeMapper">
+  <resultMap id="BaseResultMap" type="pojo.agree">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="interactionID" jdbcType="INTEGER" property="interactionID" />
+    <result column="agreeID" jdbcType="INTEGER" property="agreeID" />
+    <result column="agreeTime" jdbcType="TIMESTAMP" property="agreeTime" />
+    <result column="isDelete" jdbcType="BIT" property="isDelete" />
+  </resultMap>
+  <sql id="Base_Column_List">
+   select agree.ID, agree.interactionID, agree.agreeID, agree.agreeTime, agree.isDelete
+   from agree agree
+  </sql>
+
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <include refid="Base_Column_List" />
+    where ID = #{id,jdbcType=INTEGER} and agree.isDelete != true
+  </select>
+  <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    update agree set isDelete = true 
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  
+    <update id="deleteAgreesByInteractionId" parameterType="java.lang.Integer">
+    update agree set isDelete = true 
+    where interactionID = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <insert id="insert" parameterType="pojo.agree">
+    insert into agree (ID, interactionID, agreeID, 
+      agreeTime, isDelete)
+    values (#{id,jdbcType=INTEGER}, #{interactionID,jdbcType=INTEGER}, #{agreeID,jdbcType=INTEGER}, 
+      #{agreeTime,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="pojo.agree">
+    insert into agree
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="interactionID != null">
+        interactionID,
+      </if>
+      <if test="agreeID != null">
+        agreeID,
+      </if>
+      <if test="agreeTime != null">
+        agreeTime,
+      </if>
+      <if test="isDelete != null">
+        isDelete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="interactionID != null">
+        #{interactionID,jdbcType=INTEGER},
+      </if>
+      <if test="agreeID != null">
+        #{agreeID,jdbcType=INTEGER},
+      </if>
+      <if test="agreeTime != null">
+        #{agreeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pojo.agree">
+    update agree
+    <set>
+      <if test="interactionID != null">
+        interactionID = #{interactionID,jdbcType=INTEGER},
+      </if>
+      <if test="agreeID != null">
+        agreeID = #{agreeID,jdbcType=INTEGER},
+      </if>
+      <if test="agreeTime != null">
+        agreeTime = #{agreeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        isDelete = #{isDelete,jdbcType=BIT},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="pojo.agree">
+    update agree
+    set interactionID = #{interactionID,jdbcType=INTEGER},
+      agreeID = #{agreeID,jdbcType=INTEGER},
+      agreeTime = #{agreeTime,jdbcType=TIMESTAMP},
+      isDelete = #{isDelete,jdbcType=BIT}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  
+  	<select id="getBasic" parameterType="dao.query.agreeQueryParams" resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			<if test="pojos != null">
+			and id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and isDelete != true
+		</where>
+		<if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by agree.agreeTime desc </if>
+		<if test="recordIndex != null"> limit #{recordIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER} </if>
+	</select>
+
+	<select id="getDetail" parameterType="dao.query.agreeQueryParams" resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			<if test="pojos != null">
+			and agree.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			 and agree.isDelete != true
+		</where>
+		<if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by agree.agreeTime desc </if>
+		<if test="recordIndex != null"> limit #{recordIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER} </if>
+	</select>
+	<select id="count" parameterType="dao.query.agreeQueryParams" resultType="long">
+		select count(id) from agree
+		<where>
+			<if test="cond ！= null"> ${cond} </if>
+			and agree.isDelete != true
+		</where>
+	</select>	
+</mapper>

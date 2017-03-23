@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.shopMapper">
+	<resultMap id="BaseResultMap" type="pojo.shop">
+		<id column="shop.ID" jdbcType="INTEGER" property="id" />
+		<result column="shop.name" jdbcType="VARCHAR" property="name" />
+		<result column="shop.address" jdbcType="VARCHAR" property="address" />
+		<result column="shop.businessScope" jdbcType="VARCHAR"
+			property="businessScope" />
+		<result column="shop.owner" jdbcType="VARCHAR" property="owner" />
+		<result column="shop.pinYin" jdbcType="VARCHAR" property="pinYin" />
+		<result column="shop.cardID" jdbcType="VARCHAR" property="cardID" />
+		<result column="shop.phone" jdbcType="VARCHAR" property="phone" />
+		<result column="shop.areaID" jdbcType="INTEGER" property="areaID" />
+		<result column="shop.adderID" jdbcType="INTEGER" property="adderID" />
+		<result column="shop.createDate" jdbcType="TIMESTAMP" property="createDate" />
+	</resultMap>
+	
+	<resultMap id="DetailResultMap" type="pojo.shop" extends="BaseResultMap">
+		
+		<result column="areaName" jdbcType="VARCHAR" property="areaName" />
+		<result column="adderName" jdbcType="VARCHAR" property="adderName" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		SELECT
+		shop.ID,
+		shop.name,
+		shop.address,
+		shop.businessScope,
+		shop.owner,
+		shop.pinYin,
+		shop.cardID,
+		shop.phone,
+		shop.areaID,
+		shop.adderID,
+		shop.createDate
+		FROM
+		shop shop
+	</sql>
+	<sql id="Detail_Column_List">
+		SELECT
+		shop.ID,
+		shop.name,
+		shop.address,
+		shop.businessScope,
+		shop.owner,
+		shop.pinYin,
+		shop.cardID,
+		shop.phone,
+		shop.areaID,
+		shop.adderID,
+		shop.createDate,
+		area.name as areaName,
+		user.name as adderName
+		FROM shop shop left join user user on shop.adderID=user.id left join
+		area area on area.ID=shop.areaID
+
+	</sql>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="DetailResultMap">
+		<include refid="Detail_Column_List" />
+		where shop.ID = #{id,jdbcType=INTEGER} and shop.isDelete !=true
+	</select>
+	<update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		update shop set isDelete=true 
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<insert id="insert" parameterType="pojo.shop" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into shop (ID, name,
+		address,
+		businessScope, owner, pinYin,
+		cardID, phone, areaID,
+		adderID,
+		createDate)
+		values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+		#{address,jdbcType=VARCHAR},
+		#{businessScope,jdbcType=VARCHAR},
+		#{owner,jdbcType=VARCHAR}, #{pinYin,jdbcType=VARCHAR},
+		#{cardID,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR},
+		#{areaID,jdbcType=INTEGER},
+		#{adderID,jdbcType=INTEGER},
+		#{createDate,jdbcType=TIMESTAMP})
+	</insert>
+	<insert id="insertSelective" parameterType="pojo.shop">
+		insert into shop
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="address != null">
+				address,
+			</if>
+			<if test="businessScope != null">
+				businessScope,
+			</if>
+			<if test="owner != null">
+				owner,
+			</if>
+			<if test="pinYin != null">
+				pinYin,
+			</if>
+			<if test="cardID != null">
+				cardID,
+			</if>
+			<if test="phone != null">
+				phone,
+			</if>
+			<if test="areaID != null">
+				areaID,
+			</if>
+			<if test="adderID != null">
+				adderID,
+			</if>
+			<if test="createDate != null">
+				createDate,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				#{address,jdbcType=VARCHAR},
+			</if>
+			<if test="businessScope != null">
+				#{businessScope,jdbcType=VARCHAR},
+			</if>
+			<if test="owner != null">
+				#{owner,jdbcType=VARCHAR},
+			</if>
+			<if test="pinYin != null">
+				#{pinYin,jdbcType=VARCHAR},
+			</if>
+			<if test="cardID != null">
+				#{cardID,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				#{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="areaID != null">
+				#{areaID,jdbcType=INTEGER},
+			</if>
+			<if test="adderID != null">
+				#{adderID,jdbcType=INTEGER},
+			</if>
+			<if test="createDate != null">
+				#{createDate,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="pojo.shop">
+		update shop
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				address = #{address,jdbcType=VARCHAR},
+			</if>
+			<if test="businessScope != null">
+				businessScope = #{businessScope,jdbcType=VARCHAR},
+			</if>
+			<if test="owner != null">
+				owner = #{owner,jdbcType=VARCHAR},
+			</if>
+			<if test="pinYin != null">
+				pinYin = #{pinYin,jdbcType=VARCHAR},
+			</if>
+			<if test="cardID != null">
+				cardID = #{cardID,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				phone = #{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="areaID != null">
+				areaID = #{areaID,jdbcType=INTEGER},
+			</if>
+			<if test="adderID != null">
+				adderID = #{adderID,jdbcType=INTEGER},
+			</if>
+			<if test="createDate != null">
+				createDate = #{createDate,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="pojo.shop">
+		update shop
+		set
+		name = #{name,jdbcType=VARCHAR},
+		address = #{address,jdbcType=VARCHAR},
+		businessScope = #{businessScope,jdbcType=VARCHAR},
+		owner =
+		#{owner,jdbcType=VARCHAR},
+		pinYin = #{pinYin,jdbcType=VARCHAR},
+		cardID =
+		#{cardID,jdbcType=VARCHAR},
+		phone = #{phone,jdbcType=VARCHAR},
+		areaID =
+		#{areaID,jdbcType=INTEGER},
+		adderID = #{adderID,jdbcType=INTEGER},
+		createDate = #{createDate,jdbcType=TIMESTAMP}
+		where ID =
+		#{id,jdbcType=INTEGER}
+	</update>
+	
+<select id="getBasic" parameterType="dao.query.shopQueryParams" resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		<where>
+		<if test="areaID !=null "> shop.areaID = #{areaID,jdbcType=INTEGER} </if>
+			<if test="pojos != null">
+			and id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			 and shop.isDelete != true 
+			<if test="condition ！= null"> and ( shop.name like '%${condition}%' or shop.adress like '%${condition}%' or shop.owner like '%${condition}%' or shop.businessScope like '%${condition}%' or shop.pinYin like '%${condition}%')</if>
+		</where>
+		<if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by shop.createDate desc </if>
+		<if test="recordIndex != null"> limit #{recordIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER} </if>
+	</select>
+
+	<select id="getDetail" parameterType="dao.query.shopQueryParams" resultMap="BaseResultMap">
+		<include refid="Detail_Column_List" />
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			<if test="pojos != null">
+			and shop.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and shop.isDelete !=true
+		</where>
+		<if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by shop.createDate desc </if>
+		<if test="recordIndex != null"> limit #{recordIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER} </if>
+	</select>
+	<select id="count" parameterType="dao.query.shopQueryParams" resultType="long">
+		select count(id) from shop
+		<where>
+			 <if test="areaID !=null "> shop.areaID = #{areaID,jdbcType=INTEGER} </if>
+			 and shop.isDelete != true 
+			<if test="condition ！= null"> and ( shop.name like '%${condition}%' or shop.adress like '%${condition}%' or shop.owner like '%${condition}%' or shop.businessScope like '%${condition}%' or shop.pinYin like '%${condition}%' )</if>
+		</where>
+	</select>
+</mapper>

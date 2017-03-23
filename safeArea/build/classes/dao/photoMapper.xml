@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.photoMapper">
+	<resultMap id="BaseResultMap" type="pojo.photo">
+		<id column="photo.ID" jdbcType="INTEGER" property="id" />
+		<result column="photo.fk_id" jdbcType="INTEGER" property="objId" />
+		<result column="photo.path" jdbcType="VARCHAR" property="path" />
+		<result column="photo.type" jdbcType="INTEGER" property="type" />
+	</resultMap>
+	<resultMap id="FKBaseResultMap" type="pojo.photo">
+		<id column="photo.id" jdbcType="INTEGER" property="id" />
+		<result column="photo.path" jdbcType="VARCHAR" property="path" />
+		<result column="photo.type" jdbcType="INTEGER" property="type" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		select photo.ID, photo.fk_id, photo.path, photo.type from photo photo
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		where photo.ID = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from photo
+		where ID = #{id,jdbcType=INTEGER}
+	</delete>
+	
+		<delete id="deletePhotos" parameterType="dao.query.photoQueryParams">
+		delete from photo
+		<where>
+		 <if test="fk != null"> fk_id=#{fk,jdbcType=INTEGER} </if>
+		 <if test="fks !=null"> and fk_id in  <foreach collection="fks" open="(" close=")" separator="," item="objItem">#{objItem.id} </foreach> </if>
+		 <if test="type != null"> and type=#{type,jdbcType=INTEGER} </if>
+		 <if test="pojos != null">
+		  and id in <foreach collection="pojos" open="(" separator="," close=")" item="pojo">#{pojo.id,jdbcType=INTEGER}</foreach>
+		 </if>
+		</where>
+	</delete>
+	
+	<insert id="insert" parameterType="pojo.photo" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into photo (ID, fk_id, path,
+		type)
+		values (#{id,jdbcType=INTEGER}, #{objId,jdbcType=INTEGER},
+		#{path,jdbcType=VARCHAR},
+		#{type,jdbcType=INTEGER})
+	</insert>
+	<insert id="insertSelective" parameterType="pojo.photo" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into photo
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="objId != null">
+				fk_id,
+			</if>
+			<if test="path != null">
+				path,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="objId != null">
+				#{objId,jdbcType=INTEGER},
+			</if>
+			<if test="path != null">
+				#{path,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="pojo.photo">
+		update photo
+		<set>
+			<if test="objId != null">
+				fk_id = #{objId,jdbcType=INTEGER},
+			</if>
+			<if test="path != null">
+				path = #{path,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				type = #{type,jdbcType=INTEGER},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="pojo.photo">
+		update photo
+		set fk_id = #{objId,jdbcType=INTEGER},
+		path = #{path,jdbcType=VARCHAR},
+		type = #{type,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<select id="getBasic" parameterType="dao.query.photoQueryParams" resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			<if test="pojos != null">
+			and id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+		</where>
+		<if test="recordIndex !=null"> limit #{recordIndex},#{pageSize}</if>
+		
+	</select>
+
+	<select id="getDetail" parameterType="dao.query.photoQueryParams" resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			<if test="pojos != null">
+			and photo.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="count" parameterType="dao.query.photoQueryParams" resultType="long">
+		select count(id) from photo
+		<where>
+			<if test="cond ！= null">${cond}</if>
+		</where>
+	</select>	
+</mapper>

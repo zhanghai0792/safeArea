@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.userMapper">
+	<resultMap id="BaseResultMap" type="pojo.user">
+		<id column="user.ID" jdbcType="INTEGER" property="id" />
+		<result column="user.phone" jdbcType="VARCHAR" property="phone" />
+		<result column="user.name" jdbcType="VARCHAR" property="name" />
+		<result column="user.password" jdbcType="VARCHAR" property="password" />
+		<result column="user.type" jdbcType="INTEGER" property="type" />
+		<result column="user.areaID" jdbcType="INTEGER" property="areaID" />
+		<result column="user.isDelete" jdbcType="BIT" property="isDelete" />
+	</resultMap>
+	<resultMap id="DetailResultMap" type="pojo.user" extends="BaseResultMap">
+		<result column="areaName" jdbcType="VARCHAR" property="areaName" />
+		<association property="header" javaType="pojo.photo" resultMap="dao.photoMapper.FKBaseResultMap" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		SELECT
+		user.name,
+		user.ID,
+		user.phone,
+		user.password,
+		user.type,
+		user.areaID,
+		user.isDelete
+		FROM
+		user user
+	</sql>
+	<sql id="Detail_Column_List">
+		SELECT
+		user.name,
+		user.ID,
+		user.phone,
+		user.password,
+		user.type,
+		user.areaID,
+		user.isDelete,
+		area.name as areaName,
+		photo.id,
+		photo.path,
+		photo.type
+		FROM
+		user user left join area area on user.areaID=area.id left join photo photo on photo.fk_id=user.id and photo.type=2
+	</sql>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="DetailResultMap">
+		<include refid="Detail_Column_List" />
+		where user.ID = #{id,jdbcType=INTEGER} and user.isDelete != true
+	</select>
+	<update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		update user set isDelete=true 
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<insert id="insert" parameterType="pojo.user" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into user (ID, phone,
+		name,
+		password, type, areaID,
+		isDelete)
+		values (#{id,jdbcType=INTEGER},
+		#{phone,jdbcType=VARCHAR},
+		#{name,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
+		#{areaID,jdbcType=INTEGER},
+		#{isDelete,jdbcType=BIT})
+	</insert>
+	<insert id="insertSelective" parameterType="pojo.user" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="phone != null">
+				phone,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="areaID != null">
+				areaID,
+			</if>
+			<if test="isDelete != null">
+				isDelete,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="phone != null">
+				#{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=INTEGER},
+			</if>
+			<if test="areaID != null">
+				#{areaID,jdbcType=INTEGER},
+			</if>
+			<if test="isDelete != null">
+				#{isDelete,jdbcType=BIT},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="pojo.user">
+		update user
+		<set>
+			<if test="phone != null">
+				phone = #{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				type = #{type,jdbcType=INTEGER},
+			</if>
+			<if test="areaID != null">
+				areaID = #{areaID,jdbcType=INTEGER},
+			</if>
+			<if test="isDelete != null">
+				isDelete = #{isDelete,jdbcType=BIT},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="pojo.user">
+		update user
+		set
+		phone = #{phone,jdbcType=VARCHAR},
+		name = #{name,jdbcType=VARCHAR},
+		password = #{password,jdbcType=VARCHAR},
+		type =
+		#{type,jdbcType=INTEGER},
+		areaID = #{areaID,jdbcType=INTEGER},
+		isDelete
+		= #{isDelete,jdbcType=BIT}
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	
+			<select id="getBasic" parameterType="dao.query.userQueryParams" resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			<if test="phone ！= null"> and phone = #{phone}</if>
+			<if test="pojos != null">
+			and id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and user.isDelete!=true
+		</where>
+		 <if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by user.id desc</if>
+		<if test="recordIndex !=null"> limit #{recordIndex},#{pageSize}</if>
+	</select>
+
+	<select id="getDetail" parameterType="dao.query.userQueryParams" resultMap="BaseResultMap">
+		<include refid="Detail_Column_List" />
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			<if test="pojos != null">
+			and user.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and user.isDelete!=true
+		</where>
+		<if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by user.id desc</if>
+		<if test="recordIndex !=null"> limit #{recordIndex},#{pageSize}</if>
+	</select>
+	
+	<select id="login" parameterType="dao.query.userQueryParams" resultMap="DetailResultMap">
+		<include refid="Detail_Column_List" />
+		   where user.phone=#{user.phone} and user.password=#{user.password} and isDelete!=true
+	</select>
+	
+	<select id="count" parameterType="dao.query.userQueryParams" resultType="long">
+		select count(id) from user
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			and user.isDelete!=true
+		</where>
+	</select>
+</mapper>

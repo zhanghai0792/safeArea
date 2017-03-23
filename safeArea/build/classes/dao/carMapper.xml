@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.carMapper">
+	<resultMap id="BaseResultMap" type="pojo.car">
+		<id column="car.id" jdbcType="INTEGER" property="id" />
+		<result column="car.plateNum" jdbcType="INTEGER" property="plateNum" />
+		<result column="car.color" jdbcType="VARCHAR" property="color" />
+		<result column="car.carNum" jdbcType="VARCHAR" property="carNum" />
+		<result column="car.owner" jdbcType="VARCHAR" property="owner" />
+		<result column="car.pinYin" jdbcType="VARCHAR" property="pinYin" />
+		<result column="car.cardID" jdbcType="VARCHAR" property="cardID" />
+		<result column="car.phone" jdbcType="VARCHAR" property="phone" />
+		<result column="car.brand" jdbcType="VARCHAR" property="brand" />
+		<result column="car.areaID" jdbcType="INTEGER" property="areaID" />
+		<result column="car.adderID" jdbcType="INTEGER" property="adderID" />
+		<result column="car.createDate" jdbcType="DATE" property="createDate" />
+		<result column="car.isDelete" jdbcType="BIT" property="isDelete" />
+	</resultMap>
+
+	<resultMap type="pojo.car" id="DetailResultMap" extends="BaseResultMap">
+		<result column="area.name" jdbcType="VARCHAR" property="areaName" />
+		<result column="user.name" jdbcType="VARCHAR" property="adderName" />
+	</resultMap>
+
+
+	<sql id="Base_Column_List">
+		SELECT
+		car.ID,
+		car.plateNum,
+		car.color,
+		car.carNum,
+		car.owner,
+		car.pinYin,
+		car.cardID,
+		car.phone,
+		car.areaID,
+		car.adderID,
+		car.createDate,
+		car.isDelete,
+		car.brand
+		FROM
+		car
+	</sql>
+
+	<sql id="Detail_Column_List">
+		SELECT
+		car.ID,
+		car.plateNum,
+		car.color,
+		car.carNum,
+		car.owner,
+		car.pinYin,
+		car.cardID,
+		car.phone,
+		car.areaID,
+		car.adderID,
+		car.createDate,
+		car.isDelete,
+		car.brand,
+		area.name,
+		user.name from car car left join area area on car.areaID=area.id left join user
+		user on car.adderID=user.id
+	</sql>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="DetailResultMap">
+		<include refid="Detail_Column_List" />
+		where car.id = #{id,jdbcType=INTEGER} and car.isDelete !=true
+	</select>
+	<update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		update car set isDelete=true 
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<insert id="insert" parameterType="pojo.car" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into car ( plateNum, color,
+		carNum, owner, pinYin,
+		cardID, phone, areaID,
+		adderID, createDate, isDelete,brand
+		)
+		values ( #{plateNum,jdbcType=INTEGER}, #{color,jdbcType=VARCHAR},
+		#{carNum,jdbcType=VARCHAR}, #{owner,jdbcType=VARCHAR},
+		#{pinYin,jdbcType=VARCHAR},
+		#{cardID,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{areaID,jdbcType=INTEGER},
+		#{adderID,jdbcType=INTEGER}, #{createDate,jdbcType=DATE},
+		#{isDelete,jdbcType=BIT},
+		#{brand,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="pojo.car" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into car
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+
+			<if test="plateNum != null">
+				plateNum,
+			</if>
+			<if test="color != null">
+				color,
+			</if>
+			<if test="carNum != null">
+				carNum,
+			</if>
+			<if test="owner != null">
+				owner,
+			</if>
+			<if test="pinYin != null">
+				pinYin,
+			</if>
+			<if test="cardID != null">
+				cardID,
+			</if>
+			<if test="phone != null">
+				phone,
+			</if>
+			<if test="areaID != null">
+				areaID,
+			</if>
+			<if test="adderID != null">
+				adderID,
+			</if>
+			<if test="createDate != null">
+				createDate,
+			</if>
+			<if test="isDelete != null">
+				isDelete,
+			</if>
+			<if test="brand != null">
+				brand,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="plateNum != null">
+				#{plateNum,jdbcType=INTEGER},
+			</if>
+			<if test="color != null">
+				#{color,jdbcType=VARCHAR},
+			</if>
+			<if test="carNum != null">
+				#{carNum,jdbcType=VARCHAR},
+			</if>
+			<if test="owner != null">
+				#{owner,jdbcType=VARCHAR},
+			</if>
+			<if test="pinYin != null">
+				#{pinYin,jdbcType=VARCHAR},
+			</if>
+			<if test="cardID != null">
+				#{cardID,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				#{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="areaID != null">
+				#{areaID,jdbcType=INTEGER},
+			</if>
+			<if test="adderID != null">
+				#{adderID,jdbcType=INTEGER},
+			</if>
+			<if test="createDate != null">
+				#{createDate,jdbcType=DATE},
+			</if>
+			<if test="isDelete != null">
+				#{isDelete,jdbcType=BIT},
+			</if>
+			<if test="brand != null">
+				#{brand,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="pojo.car">
+		update car
+		<set>
+			<if test="plateNum != null">
+				plateNum = #{plateNum,jdbcType=INTEGER},
+			</if>
+			<if test="color != null">
+				color = #{color,jdbcType=VARCHAR},
+			</if>
+			<if test="carNum != null">
+				carNum = #{carNum,jdbcType=VARCHAR},
+			</if>
+			<if test="owner != null">
+				owner = #{owner,jdbcType=VARCHAR},
+			</if>
+			<if test="pinYin != null">
+				pinYin = #{pinYin,jdbcType=VARCHAR},
+			</if>
+			<if test="cardID != null">
+				cardID = #{cardID,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				phone = #{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="areaID != null">
+				areaID = #{areaID,jdbcType=INTEGER},
+			</if>
+			<if test="adderID != null">
+				adderID = #{adderIDd,jdbcType=INTEGER},
+			</if>
+			<if test="createDate != null">
+				createDate = #{createDate,jdbcType=DATE},
+			</if>
+			<if test="isDelete != null">
+				isDelete = #{isDelete,jdbcType=BIT},
+			</if>
+			<if test="brand != null">
+				brand=#{brand,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="pojo.car">
+		update car
+		set plateNum = #{plateNum,jdbcType=INTEGER},
+		color = #{color,jdbcType=VARCHAR},
+		carNum = #{carNum,jdbcType=VARCHAR},
+		owner = #{owner,jdbcType=VARCHAR},
+		pinYin = #{pinYin,jdbcType=VARCHAR},
+		cardID = #{cardID,jdbcType=VARCHAR},
+		phone = #{phone,jdbcType=VARCHAR},
+		areaID = #{areaID,jdbcType=INTEGER},
+		adderID = #{adderID,jdbcType=INTEGER},
+		createDate = #{createDate,jdbcType=DATE},
+		isDelete = #{isDelete,jdbcType=BIT},
+		brand=#{brand,jdbcType=VARCHAR}
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+
+	<select id="getBasic" parameterType="dao.query.carQueryParams" resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		<where>
+			<if test="areaID != null "> car.areaID = #{areaID,jdbcType=INTEGER} </if>
+			 and car.isDelete != true 
+			<if test="condition ！= null"> and ( car.plateNum like '%${condition}%' or car.carNum like '%${condition}%' or car.cardID like '%${condition}%' or car.owner like '%${condition}%' or car.pinYin like '%${condition}%' )</if>
+		</where>
+		<if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by car.createDate desc </if>
+		<if test="recordIndex != null"> limit #{recordIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER} </if>
+	</select>
+
+	<select id="getDetail" parameterType="dao.query.carQueryParams" resultMap="DetailResultMap">
+		<include refid="Detail_Column_List" />
+		<where>
+			<if test="areaID != null "> car.areaID = #{areaID,jdbcType=INTEGER} </if>
+			<if test="pojos != null">
+			and	car.id in 
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="carT">
+					#{carT.id,jdbcType=INTEGER}
+				</foreach>
+			</if>
+			  and car.isDelete != true 
+			<if test="condition ！= null"> and ( car.plateNum like '%${condition}%' or car.carNum like '%${condition}%' or car.cardID like '%${condition}%' or car.owner like '%${condition}%' or car.pinYin like '%${condition}%' ) </if>
+		</where>
+		<if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by car.createDate desc </if>
+		<if test="recordIndex != null"> limit #{recordIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER} </if>
+	</select>
+	<select id="count" parameterType="dao.query.carQueryParams" resultType="long">
+		select count(id) from car car
+		<where>
+		   <if test="areaID !=null "> car.areaID = #{areaID,jdbcType=INTEGER} </if>
+			 and car.isDelete != true 
+			<if test="condition ！= null"> and ( car.plateNum like '%${condition}%' or car.carNum like '%${condition}%' or car.cardID like '%${condition}%' or car.owner like '%${condition}%' or car.pinYin like '%${condition}%' )</if>
+		</where>
+	</select>
+
+</mapper>

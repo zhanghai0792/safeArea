@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.houseMapper">
+  <resultMap id="BaseResultMap" type="pojo.house">
+    <id column="house.id" jdbcType="INTEGER" property="id" />
+    <result column="house.areaID" jdbcType="INTEGER" property="areaID" />
+    <result column="house.address" jdbcType="VARCHAR" property="address" />
+    <result column="house.type" jdbcType="INTEGER" property="type" />
+    <result column="house.owner" jdbcType="VARCHAR" property="owner" />
+    <result column="house.pinYin" jdbcType="VARCHAR" property="pinYin" />
+    <result column="house.ownerCardID" jdbcType="VARCHAR" property="ownerCardID" />
+    <result column="house.phone" jdbcType="VARCHAR" property="phone" />
+    <result column="house.adderID" jdbcType="INTEGER" property="adderID" />
+    <result column="house.createDate" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="house.isDelete" jdbcType="BIT" property="isDelete" />
+  </resultMap>
+  
+  <resultMap id="DetailResultMap" type="pojo.house" extends="BaseResultMap">
+    <result column="areaName" jdbcType="VARCHAR" property="areaName" />
+    <result column="adderName" jdbcType="VARCHAR" property="adderName" />
+  </resultMap>
+ 
+  <resultMap id="houseAndResident"  type="pojo.house"  extends="BaseResultMap" >
+   <collection property="residents" javaType="list" ofType="pojo.resident" resultMap="dao.residentMapper.BaseResultMap" />
+  </resultMap>
+  
+  <sql id="houseAndResident_Column_List">
+   select house.id, house.areaID, house.address, house.type, house.owner, house.pinYin, house.ownerCardID, house.phone, house.adderID, house.createDate, 
+    house.isDelete,resident.ID,
+		resident.cardID,
+		resident.name,
+		resident.pinYin,
+		resident.nation,
+		resident.phone,
+		resident.houseID,
+		resident.adderID,
+		resident.createDate,
+		resident.isDelete,
+		photo.ID,
+		photo.path,
+		photo.type 
+		from house house 
+		 left join resident resident on house.id=resident.houseID
+		 left join photo photo on resident.id=photo.fk_id and
+		photo.type=0
+  </sql>
+  
+  
+  <sql id="Base_Column_List">
+   select house.id, house.areaID, house.address, house.type, house.owner, house.pinYin, house.ownerCardID, house.phone, house.adderID, house.createDate, 
+    house.isDelete from house house
+  </sql>
+  
+    <sql id="Detail_Column_List">
+   select house.id, house.areaID, house.address, house.type, house.owner, house.pinYin, house.ownerCardID, house.phone, house.adderID, house.createDate, 
+    house.isDelete,area.name as areaName,user.name as adderName from house house left join area.id=house.areaID left join user user.id=hoset.adderId
+  </sql>
+  
+  <select id="houseAndResident_Column_List" parameterType="java.lang.Integer" resultMap="houseAndResident">
+    <include refid="Detail_Column_List" />
+    where house.ID = #{id,jdbcType=INTEGER} and house.isDelete != true
+  </select>
+  
+  <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    update house  set isDelete=true 
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <insert id="insert" parameterType="pojo.house" keyColumn="id"
+		useGeneratedKeys="true">
+    insert into house (ID, areaID, address, 
+      type, owner, pinYin, 
+      ownerCardID, phone, adderID, 
+      createDate, isDelete)
+    values (#{id,jdbcType=INTEGER}, #{areaID,jdbcType=INTEGER}, #{address,jdbcType=VARCHAR}, 
+      #{type,jdbcType=INTEGER}, #{owner,jdbcType=VARCHAR}, #{pinYin,jdbcType=VARCHAR}, 
+      #{ownerCardID,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{adderID,jdbcType=INTEGER}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="pojo.house" keyColumn="id"
+		useGeneratedKeys="true">
+    insert into house
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="areaID != null">
+        areaID,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="owner != null">
+        owner,
+      </if>
+      <if test="pinYin != null">
+        pinYin,
+      </if>
+      <if test="ownerCardID != null">
+        ownerCardID,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="adderID != null">
+        adderID,
+      </if>
+      <if test="createDate != null">
+        createDate,
+      </if>
+      <if test="isDelete != null">
+        isDelete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="areaID != null">
+        #{areaID,jdbcType=INTEGER},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="owner != null">
+        #{owner,jdbcType=VARCHAR},
+      </if>
+      <if test="pinYin != null">
+        #{pinYin,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerCardID != null">
+        #{ownerCardID,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="adderID != null">
+        #{adderID,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pojo.house">
+    update house
+    <set>
+      <if test="areaID != null">
+        areaID = #{areaID,jdbcType=INTEGER},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="owner != null">
+        owner = #{owner,jdbcType=VARCHAR},
+      </if>
+      <if test="pinYin != null">
+        pinYin = #{pinYin,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerCardID != null">
+        ownerCardID = #{ownerCardID,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="adderID != null">
+        adderID = #{adderID,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null">
+        createDate = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        isDelete = #{isDelete,jdbcType=BIT},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="pojo.house">
+    update house
+    set areaID = #{areaID,jdbcType=INTEGER},
+      address = #{address,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      owner = #{owner,jdbcType=VARCHAR},
+      pinYin = #{pinYin,jdbcType=VARCHAR},
+      ownerCardID = #{ownerCardID,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      adderID = #{adderID,jdbcType=INTEGER},
+      createDate = #{createDate,jdbcType=TIMESTAMP},
+      isDelete = #{isDelete,jdbcType=BIT}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  
+  
+   <select id="getBasic" parameterType="dao.query.houseQueryParams" resultMap="BaseResultMap">
+    <include refid="Base_Column_List" />
+     <where>
+    <if test="houseType != null">house.type=#{houseType,jdbcType=INTEGER}</if>
+    and isDelete != true 
+    <if test="condition != null"> and house.address like '%${condition}%' or house.owner like '%${condition}%' or house.pinYin like '%${condition}%' or house.ownerCardID like '%${condition}%' </if>
+ </where>
+  <if test="orderBy != null"> order by ${orderBy} </if>
+  <if test="orderBy == null"> order by house.createDate desc </if>
+     <if test="recordIndex !=null"> limit #{recordIndex},#{pageSize}</if>
+    </select>
+  
+    <select id="getDetail" parameterType="dao.query.houseQueryParams" resultMap="DetailResultMap">
+    <include refid="Detail_Column_List" />
+     <where> 
+ <if test="houseType != null">house.type=#{houseType,jdbcType=INTEGER}</if>
+    and isDelete != true 
+     <if test="pojos != null">
+			and	house.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="house">
+					#{house.id}
+				</foreach>
+			</if>
+    <if test="condition != null">and house.address like '%${condition}%' or house.owner like '%${condition}%' or house.pinYin like '%${condition}%' or house.ownerCardID like '%${condition}%'</if>
+    </where>
+     <if test="orderBy != null"> order by ${orderBy}</if>
+  <if test="orderBy == null"> order by house.createDate desc </if>
+  <if test="recordIndex !=null"> limit #{recordIndex},#{pageSize}</if>
+     
+ </select>
+  <select id="count" parameterType="dao.query.houseQueryParams" resultType="long">
+  select count(id) from house
+   <where>
+    <if test="houseType != null">house.type=#{houseType,jdbcType=INTEGER}</if>
+    and isDelete != true 
+    <if test="condition != null">and house.address like '%${condition}%' or house.owner like '%${condition}%' or house.pinYin like '%${condition}%' or house.ownerCardID like '%${condition}%'</if>
+    </where>
+  </select>
+  
+</mapper>

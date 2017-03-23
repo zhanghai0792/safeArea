@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.replyMapper">
+	<resultMap id="BaseResultMap" type="pojo.reply">
+		<id column="reply.ID" jdbcType="INTEGER" property="id" />
+		<result column="reply.interactionID" jdbcType="INTEGER" property="interactionID" />
+		<result column="reply.replyerID" jdbcType="INTEGER" property="replyerID" />
+		<result column="reply.replyTime" jdbcType="TIMESTAMP" property="replyTime" />
+		<result column="reply.type" jdbcType="INTEGER" property="type" />
+		<result column="reply.isDelete" jdbcType="BIT" property="isDelete" />
+		<result column="reply.content" jdbcType="LONGVARCHAR" property="content" />
+	</resultMap>
+	<resultMap extends="BaseResultMap" id="DetailResultMap"
+		type="pojo.reply">
+		<result column="replyerName" jdbcType="VARCHAR" property="replyerName" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		SELECT
+		reply.ID,
+		reply.interactionID,
+		reply.content,
+		reply.replyerID,
+		reply.replyTime,
+		reply.type,
+		reply.isDelete
+		FROM
+		reply
+		reply
+	</sql>
+	<sql id="Detail_Column_List">
+		SELECT
+		reply.ID,
+		reply.interactionID,
+		reply.content,
+		reply.replyerID,
+		reply.replyTime,
+		reply.type,
+		reply.isDelete,
+		user.name as replyerName,
+		photo.id,
+		photo.type,
+		photo.path
+		FROM
+		reply left join user user on reply.replyerID=user.id left join photo photo on user.id=photo.fk_id and photo.type=2
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="DetailResultMap">
+		
+		<include refid="Detail_Column_List" />
+		where reply.ID = #{id,jdbcType=INTEGER} and reply.isDelete != true
+	</select>
+	<update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		update reply set isDelete=true 
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="deleteByInteractionId" parameterType="java.lang.Integer">
+		update reply set isDelete = true 
+		where interactionID = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<insert id="insert" parameterType="pojo.reply" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into reply (ID,
+		interactionID, replyerID,
+		replyTime, type, isDelete,
+		content)
+		values
+		(#{id,jdbcType=INTEGER}, #{interactionID,jdbcType=INTEGER},
+		#{replyerID,jdbcType=INTEGER},
+		#{replyTime,jdbcType=TIMESTAMP},
+		#{type,jdbcType=INTEGER}, #{isDelete,jdbcType=BIT},
+		#{content,jdbcType=LONGVARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="pojo.reply" keyColumn="id"
+		useGeneratedKeys="true" >
+		insert into reply
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="interactionID != null">
+				interactionID,
+			</if>
+			<if test="replyerID != null">
+				replyerID,
+			</if>
+			<if test="replyTime != null">
+				replyTime,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="isDelete != null">
+				isDelete,
+			</if>
+			<if test="content != null">
+				content,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="interactionID != null">
+				#{interactionID,jdbcType=INTEGER},
+			</if>
+			<if test="replyerID != null">
+				#{replyerID,jdbcType=INTEGER},
+			</if>
+			<if test="replyTime != null">
+				#{replyTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=INTEGER},
+			</if>
+			<if test="isDelete != null">
+				#{isDelete,jdbcType=BIT},
+			</if>
+			<if test="content != null">
+				#{content,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="pojo.reply">
+		update reply
+		<set>
+			<if test="interactionID != null">
+				interactionID = #{interactionID,jdbcType=INTEGER},
+			</if>
+			<if test="replyerID != null">
+				replyerID = #{replyerID,jdbcType=INTEGER},
+			</if>
+			<if test="replyTime != null">
+				replyTime = #{replyTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="type != null">
+				type = #{type,jdbcType=INTEGER},
+			</if>
+			<if test="isDelete != null">
+				isDelete = #{isDelete,jdbcType=BIT},
+			</if>
+			<if test="content != null">
+				content = #{content,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<update id="updateByPrimaryKey" parameterType="pojo.reply">
+		update
+		reply
+		set interactionID = #{interactionID,jdbcType=INTEGER},
+		replyerID =
+		#{replyerID,jdbcType=INTEGER},
+		replyTime =
+		#{replyTime,jdbcType=TIMESTAMP},
+		type = #{type,jdbcType=INTEGER},
+		isDelete = #{isDelete,jdbcType=BIT},
+		content =
+		#{content,jdbcType=LONGVARCHAR}
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	
+	
+		<select id="getBasic" parameterType="dao.query.replyQueryParams" resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			<if test="pojos != null">
+			and id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and reply.isDelete != true 
+		</where>
+		<if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by reply.replyTime desc</if>
+		<if test="recordIndex !=null"> limit #{recordIndex},#{pageSize}</if>
+	</select>
+
+	<select id="getDetail" parameterType="dao.query.replyQueryParams" resultMap="BaseResultMap">
+		<include refid="Detail_Column_List" />
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			<if test="pojos != null">
+			and reply.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and reply.isDelete != true 
+		</where>
+		<if test="orderBy != null"> order by  ${orderBy}</if>
+		<if test="orderBy == null"> order by reply.replyTime desc</if>
+	</select>
+	<select id="count" parameterType="dao.query.replyQueryParams" resultType="long">
+		select count(id) from reply
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			and isDelete != true
+		</where>
+	</select>
+</mapper>

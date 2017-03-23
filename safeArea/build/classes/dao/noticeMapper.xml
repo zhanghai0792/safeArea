@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.noticeMapper">
+	<resultMap id="BaseResultMap" type="pojo.notice">
+		<id column="notice.ID" jdbcType="INTEGER" property="id" />
+		<result column="notice.title" jdbcType="VARCHAR" property="title" />
+		<result column="notice.releaseID" jdbcType="INTEGER" property="releaseID" />
+		<result column="notice.headlineMarker" jdbcType="BIT"
+			property="headlineMarker" />
+		<result column="notice.isDelete" jdbcType="BIT" property="isDelete" />
+		<result column="notice.releaseTime" jdbcType="TIMESTAMP"
+			property="releaseTime" />
+		<result column="notice.content" jdbcType="LONGVARCHAR"
+			property="content" />
+	</resultMap>
+	<resultMap extends="BaseResultMap" id="DetailResultMap" type="pojo.notice">
+		<result column="releaseName" jdbcType="VARCHAR" property="releaseName" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		SELECT
+		notice.ID,
+		notice.title,
+		notice.content,
+		notice.releaseID,
+		notice.headlineMarker,
+		notice.isDelete
+		notice.releaseTime
+		FROM
+		notice
+	</sql>
+	<sql id="Detail_Column_List">
+		SELECT
+		notice.ID,
+		notice.title,
+		notice.content,
+		notice.releaseID,
+		notice.headlineMarker,
+		notice.isDelete,
+		notice.releaseTime
+		user.name AS releaseName
+		FROM
+		notice as notice left
+		join user user on user.id=notice.releaseID
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="DetailResultMap">
+		<include refid="Detail_Column_List" />
+		where notice.ID = #{id,jdbcType=INTEGER} and notice.isDelete != true
+	</select>
+	<update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		update notice set isDelete=true 
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<insert id="insert" parameterType="pojo.notice" keyColumn="id"
+		useGeneratedKeys="true">
+		insert into notice (ID, title,
+		releaseID,
+		headlineMarker, isDelete, content,releaseTime
+		)
+		values
+		(#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR},
+		#{releaseID,jdbcType=INTEGER},
+		#{headlineMarker,jdbcType=BIT},
+		#{isDelete,jdbcType=BIT},
+		#{content,jdbcType=LONGVARCHAR},#{releaseTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="pojo.notice">
+		insert into notice
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="title != null">
+				title,
+			</if>
+			<if test="releaseID != null">
+				releaseID,
+			</if>
+			<if test="headlineMarker != null">
+				headlineMarker,
+			</if>
+			<if test="isDelete != null">
+				isDelete,
+			</if>
+			<if test="content != null">
+				content,
+			</if>
+			<if test="releaseTime != null"> releaseTime </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="title != null">
+				#{title,jdbcType=VARCHAR},
+			</if>
+			<if test="releaseID != null">
+				#{releaseID,jdbcType=INTEGER},
+			</if>
+			<if test="headlineMarker != null">
+				#{headlineMarker,jdbcType=BIT},
+			</if>
+			<if test="isDelete != null">
+				#{isDelete,jdbcType=BIT},
+			</if>
+			<if test="content != null">
+				#{content,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="releaseTime != null">#{releaseTime,jdbcType=TIMESTAMP}</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="pojo.notice">
+		update notice
+		<set>
+			<if test="title != null">
+				title = #{title,jdbcType=VARCHAR},
+			</if>
+			<if test="releaseID != null">
+				releaseID = #{releaseID,jdbcType=INTEGER},
+			</if>
+			<if test="headlineMarker != null">
+				headlineMarker = #{headlineMarker,jdbcType=BIT},
+			</if>
+			<if test="isDelete != null">
+				isDelete = #{isDelete,jdbcType=BIT},
+			</if>
+			<if test="content != null">
+				content = #{content,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="releaseTime != null"> releaseTime=#{releaseTime,jdbcType=TIMESTAMP}</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="pojo.notice">
+		update
+		notice
+		set
+		title = #{title,jdbcType=VARCHAR},
+		releaseID =
+		#{releaseID,jdbcType=INTEGER},
+		headlineMarker =
+		#{headlineMarker,jdbcType=BIT},
+		isDelete = #{isDelete,jdbcType=BIT},
+		content = #{content,jdbcType=LONGVARCHAR},
+		releaseTime=#{releaseTime,jdbcType=TIMESTAMP}
+		where ID =
+		#{id,jdbcType=INTEGER}
+	</update>
+
+
+	<select id="getBasic" parameterType="dao.query.noticeQueryParams"
+		resultMap="BaseResultMap">
+		<include refid="Base_Column_List" />
+		<where>
+			<if test="pojos != null">
+				and id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and isDelete !=true
+		</where>
+		<if test="orderBy != null"> order by ${orderBy}</if>
+		<if test="orderBy != null"> order by notice.releaseTime desc</if>
+		<if test="recordIndex !=null"> limit #{recordIndex},#{pageSize} </if>
+	</select>
+
+	<select id="getDetail" parameterType="dao.query.noticeQueryParams"
+		resultMap="DetailResultMap">
+		<include refid="Detail_Column_List" />
+		<where>
+			<if test="pojos != null">
+				and notice.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+				</if>
+		and notice.isDelete !=true
+		</where>
+		<if test="orderBy != null"> order by ${orderBy}</if>
+		<if test="orderBy != null"> order by notice.releaseTime desc</if>
+		<if test="recordIndex !=null"> limit #{recordIndex},#{pageSize} </if>
+	</select>
+	<select id="count" parameterType="dao.query.noticeQueryParams"
+		resultType="long">
+		select count(id) from notice
+		<where>
+			<if test="cond ！= null">${cond}</if>
+			and isDelete != true
+		</where>
+	</select>
+</mapper>

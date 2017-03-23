@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.newsMapper">
+  <resultMap id="BaseResultMap" type="pojo.news">
+    <id column="news.ID" jdbcType="INTEGER" property="id" />
+    <result column="news.title" jdbcType="VARCHAR" property="title" />
+     <result column="news.content" jdbcType="VARCHAR" property="content" />
+    <result column="news.releaseTime" jdbcType="TIMESTAMP" property="releaseTime" />
+    <result column="news.releaseID" jdbcType="INTEGER" property="releaseID" />
+    <result column="news.headlineMarker" jdbcType="BIT" property="headlineMarker" />
+    <result column="news.isDelete" jdbcType="BIT" property="isDelete" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="DetailResultMap" type="pojo.news">
+      <collection property="photos" javaType="list" ofType="pojo.photo" resultMap="dao.photoMapper.FKBaseResultMap"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+ select news.ID,
+news.title,
+news.content,
+news.releaseTime,
+news.releaseID,
+news.headlineMarker,
+news.isDelete
+from news news
+  </sql>
+ 
+   <sql id="Detail_Column_List">
+SELECT
+news.ID,
+news.title,
+news.content,
+news.releaseTime,
+news.releaseID,
+news.headlineMarker,
+news.isDelete,
+photo.ID,
+photo.fk_id,
+photo.path,
+photo.type
+FROM
+news news left join photo photo on news.id=photo.fk_id and photo.type=3
+ </sql> 
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="DetailResultMap">
+   
+    <include refid="Detail_Column_List" />
+     where news.ID = #{id,jdbcType=INTEGER} and news.isDelete != true
+  </select>
+  <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    update news set isDelete=true 
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <insert id="insert" parameterType="pojo.news" keyColumn="id"
+		useGeneratedKeys="true">
+    insert into news (ID, title, releaseTime, 
+      releaseID, headlineMarker, isDelete, 
+      content)
+    values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{releaseTime,jdbcType=TIMESTAMP}, 
+      #{releaseID,jdbcType=INTEGER}, #{headlineMarker,jdbcType=BIT}, #{isDelete,jdbcType=BIT}, 
+      #{content,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pojo.news" keyColumn="id"
+		useGeneratedKeys="true">
+    insert into news
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="releaseTime != null">
+        releaseTime,
+      </if>
+      <if test="releaseID != null">
+        releaseID,
+      </if>
+      <if test="headlineMarker != null">
+        headlineMarker,
+      </if>
+      <if test="isDelete != null">
+        isDelete,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="releaseTime != null">
+        #{releaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="releaseID != null">
+        #{releaseID,jdbcType=INTEGER},
+      </if>
+      <if test="headlineMarker != null">
+        #{headlineMarker,jdbcType=BIT},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=BIT},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pojo.news">
+    update news
+    <set>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="releaseTime != null">
+        releaseTime = #{releaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="releaseID != null">
+        releaseID = #{releaseID,jdbcType=INTEGER},
+      </if>
+      <if test="headlineMarker != null">
+        headlineMarker = #{headlineMarker,jdbcType=BIT},
+      </if>
+      <if test="isDelete != null">
+        isDelete = #{isDelete,jdbcType=BIT},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="pojo.news">
+    update news
+    set title = #{title,jdbcType=VARCHAR},
+      releaseTime = #{releaseTime,jdbcType=TIMESTAMP},
+      releaseID = #{releaseID,jdbcType=INTEGER},
+      headlineMarker = #{headlineMarker,jdbcType=BIT},
+      isDelete = #{isDelete,jdbcType=BIT},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <select id="getBasic" parameterType="dao.query.newsQueryParams" resultMap="BaseResultMap">
+    <include refid="Base_Column_List" />
+     <where>
+    <if test="cond ！= null">${cond}</if>
+   <if test="pojos != null">
+			and id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and isDelete != true
+    </where>
+    <if test="orderBy != null"> order by ${orderBy}</if>
+		<if test="orderBy != null"> order by news.releaseTime desc </if>
+		<if test="recordIndex !=null"> limit #{recordIndex},#{pageSize} </if>
+    </select>
+  
+    <select id="getDetail" parameterType="dao.query.newsQueryParams" resultMap="DetailResultMap">
+    <include refid="Detail_Column_List" />
+     <where>
+    <if test="cond ！= null">${cond}</if>
+    <if test="pojos != null">
+			and news.id in
+				<foreach collection="pojos" open="(" close=")" separator=","
+					item="pojo">
+					#{pojo.id}
+				</foreach>
+			</if>
+			and news.isDelete != true
+</where>
+<if test="orderBy != null"> order by ${orderBy}</if>
+		<if test="orderBy != null"> order by news.releaseTime desc</if>
+    </select>
+  <select id="count" parameterType="dao.query.newsQueryParams" resultType="long">
+  select count(id) from news
+   <where>
+    <if test="cond ！= null">${cond}</if>
+    and news.isDelete != true
+    </where>
+  </select> 
+  
+  
+</mapper>
